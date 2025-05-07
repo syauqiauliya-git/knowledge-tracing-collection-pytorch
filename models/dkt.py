@@ -8,7 +8,7 @@ from torch.nn.functional import one_hot, binary_cross_entropy
 from sklearn import metrics
 
 
-''' test
+''' testing
 '''
 
 class DKT(Module):
