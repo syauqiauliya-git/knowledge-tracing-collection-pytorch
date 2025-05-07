@@ -120,7 +120,8 @@ class DKTPlus(Module):
                     rshft = torch.masked_select(rshft, m).detach().cpu()
 
                     auc = metrics.roc_auc_score(
-                        y_true=rshft.numpy(), y_score=y_next.numpy()
+                        y_true=rshft.numpy().astype(int),
+                        y_score=y_next.numpy()
                     )
 
                     loss_mean = np.mean(loss_mean)

@@ -8,9 +8,6 @@ from torch.nn.functional import one_hot, binary_cross_entropy
 from sklearn import metrics
 
 
-''' testing
-'''
-
 class DKT(Module):
     '''
         Args:
@@ -99,7 +96,8 @@ class DKT(Module):
                     t = torch.masked_select(rshft, m).detach().cpu()
 
                     auc = metrics.roc_auc_score(
-                        y_true=t.numpy(), y_score=y.numpy()
+                        y_true=t.numpy().astype(int),
+                        y_score=y.numpy()
                     )
 
                     loss_mean = np.mean(loss_mean)
