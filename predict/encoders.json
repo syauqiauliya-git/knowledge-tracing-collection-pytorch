@@ -1,0 +1,26 @@
+{
+  "skill2idx": {
+    "Addition and Subtraction Integers": 0,
+    "Area of Rectangles": 1,
+    "Area of Triangle": 2,
+    "Comparing Fractions": 3,
+    "Converting Fractions to Decimals": 4,
+    "Decimal Division": 5,
+    "Decimal Multiplication": 6,
+    "Graphing Linear Equations": 7,
+    "Linear Inequalities": 8,
+    "Mean": 9
+  },
+  "student2idx": {
+    "80000": 0,
+    "80001": 1,
+    "80002": 2,
+    "80003": 3,
+    "80004": 4,
+    "80005": 5,
+    "80006": 6,
+    "80007": 7,
+    "80008": 8,
+    "80009": 9
+  }
+}

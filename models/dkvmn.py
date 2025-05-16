@@ -134,15 +134,15 @@ class DKVMN(Module):
                     t = torch.masked_select(r, m).float().detach().cpu()
 
                     auc = metrics.roc_auc_score(
-                        y_true=t.numpy(), y_score=p.numpy()
+                        y_true=t.numpy().astype(int),  # <--- FIXED here
+                        y_score=p.numpy()
                     )
 
-                    loss_mean = np.mean(loss_mean)
+                    loss_mean_epoch = np.mean(loss_mean)
 
-                    print(
-                        "Epoch: {},   AUC: {},   Loss Mean: {}"
-                        .format(i, auc, loss_mean)
-                    )
+                    print(f"Epoch: {i},   AUC: {auc:.4f},   Loss Mean: {loss_mean_epoch:.4f}") 
+                    loss_means.append(loss_mean_epoch)
+
 
                     if auc > max_auc:
                         torch.save(

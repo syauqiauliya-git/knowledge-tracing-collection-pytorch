@@ -21,6 +21,30 @@ from models.sakt import SAKT
 from models.gkt import PAM, MHA
 from models.utils import collate_fn
 
+import random
+import numpy as np
+
+
+class EarlyStopping:
+    def __init__(self, patience=3, delta=0.0):
+        self.patience = patience
+        self.delta = delta
+        self.counter = 0
+        self.best_loss = None
+        self.early_stop = False
+
+    def __call__(self, loss):
+        if self.best_loss is None:
+            self.best_loss = loss
+        elif loss > self.best_loss - self.delta:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
+        else:
+            self.best_loss = loss
+            self.counter = 0
+        return self.early_stop
+
 
 def main(model_name, dataset_name, pretrained_path=None):
     if not os.path.isdir("ckpts"):
@@ -32,6 +56,10 @@ def main(model_name, dataset_name, pretrained_path=None):
     with open("config.json") as f:
         config = json.load(f)
         model_config = config[model_name]
+
+    if pretrained_path:
+        train_config = config["fine_tune_config"]
+    else:
         train_config = config["train_config"]
 
     batch_size = train_config["batch_size"]
@@ -84,17 +112,14 @@ def main(model_name, dataset_name, pretrained_path=None):
         pretrained_weights = torch.load(pretrained_path)
         model_weights = model.state_dict()
 
-        # Filter out mismatched shapes
         filtered_weights = {
             k: v for k, v in pretrained_weights.items()
             if k in model_weights and v.size() == model_weights[k].size()
         }
 
-        # Load only matching parameters
         model_weights.update(filtered_weights)
         model.load_state_dict(model_weights)
         print(f"✅ Loaded pretrained weights for {len(filtered_weights)} / {len(model_weights)} layers (skipped incompatible)")
-
 
     train_size = int(len(dataset) * train_ratio)
     test_size = len(dataset) - train_size
@@ -116,15 +141,14 @@ def main(model_name, dataset_name, pretrained_path=None):
     test_loader = DataLoader(test_dataset, batch_size=test_size, shuffle=True, collate_fn=collate_fn)
 
     if optimizer == "sgd":
-        opt = SGD(model.parameters(), learning_rate, momentum=0.9)
+        opt = SGD(filter(lambda p: p.requires_grad, model.parameters()), learning_rate, momentum=0.9)
     elif optimizer == "adam":
-        opt = Adam(model.parameters(), learning_rate)
+        opt = Adam(filter(lambda p: p.requires_grad, model.parameters()), learning_rate)
     else:
         raise ValueError("Unsupported optimizer")
 
     aucs, loss_means = model.train_model(train_loader, test_loader, num_epochs, opt, ckpt_path)
 
-    # 📦 Save the model with timestamp
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     save_filename = f"{model_name}_{dataset_name}_{timestamp}.pt"
 

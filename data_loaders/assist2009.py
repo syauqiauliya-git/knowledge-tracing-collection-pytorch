@@ -19,7 +19,7 @@ class ASSIST2009(Dataset):
 
         self.dataset_dir = dataset_dir
         self.dataset_path = os.path.join(
-            self.dataset_dir, "skill_builder_data.csv"
+            self.dataset_dir, "original_skill_builder_data.csv"
         )
 
         if os.path.exists(os.path.join(self.dataset_dir, "q_seqs.pkl")):
